@@ -16,7 +16,7 @@ import {
   ShoppingBag
 } from "lucide-react";
 
-import { api } from "./api/client";
+import { api, getLiveDealUrl } from "./api/client";
 import { useDeviceId } from "./hooks/useDeviceId";
 
 // Components
@@ -86,11 +86,15 @@ export function App() {
     "All", "Electronics", "Home & Kitchen", "Fashion", "Beauty & Personal Care", "Supermarket"
   ]);
 
-  // Watchlist State (stored in localStorage)
+  // Watchlist State (stored in localStorage and sanitized against search URLs)
   const [watchedDeals, setWatchedDeals] = useState(() => {
     try {
       const saved = localStorage.getItem("dealsradar_watchlist");
-      return saved ? JSON.parse(saved) : [];
+      const list = saved ? JSON.parse(saved) : [];
+      return list.map(d => ({
+        ...d,
+        url: getLiveDealUrl(d)
+      }));
     } catch (e) {
       return [];
     }

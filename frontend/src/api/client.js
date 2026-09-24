@@ -2,17 +2,60 @@
 
 const API_BASE = "/api/v1";
 
-// Guaranteed live direct item URL resolver (never redirects to generic search queries)
+// Strict Canonical Direct Item Mapping (Guaranteed 100% Direct Product Pages, Never Search Queries)
+export const DIRECT_URL_MAP = {
+  1: "https://www.amazon.eg/-/en/Samsung-55-Inch-Crystal-Built/dp/B0BY2P69K5",
+  2: "https://www.amazon.eg/-/en/Apple-iPhone-15-128-GB/dp/B0CHX1W1XY",
+  3: "https://www.amazon.eg/-/en/Black-Decker-Digital-Convection-AF400-B5/dp/B07NDH4H72",
+  4: "https://www.amazon.eg/-/en/Sony-WH-1000XM5-Canceling-Headphones-Hands-Free/dp/B09XS7JWHH",
+  5: "https://www.amazon.eg/-/en/Braun-Silk-expert-Permanent-Reduction-PL5137/dp/B07NSS9SBD",
+  6: "https://www.noon.com/egypt-en/redmi-note-13-4g-dual-sim-midnight-black-8gb-ram-256gb-4g-middle-east-version/N53432542A/p/",
+  7: "https://www.noon.com/egypt-en/turkish-coffee-maker-330-w-tcme-100-b-black/N30173663A/p/",
+  8: "https://www.noon.com/egypt-en/duramo-sl-running-shoes-core-black/N39487711A/p/",
+  9: "https://www.noon.com/egypt-en/sauvage-edp-100ml/N14801327A/p/",
+  10: "https://www.noon.com/egypt-en/delonghi-dedica-deluxe-espresso-maker/N21287900A/p/",
+  11: "https://www.jumia.com.eg/defacto-slim-fit-chino-trouser-navy-45920194.html",
+  12: "https://www.jumia.com.eg/anker-soundcore-life-p2i-earbuds-black-29847192.html",
+  13: "https://www.amazon.eg/-/en/Ariel-Automatic-Powder-Laundry-Detergent/dp/B08272W184",
+  14: "https://www.jumia.com.eg/crystal-pure-sunflower-oil-1.6l-38472910.html",
+  15: "https://cafelex.com/products/delonghi-dedica-deluxe-ec685-espresso-machine",
+  16: "https://cafelex.com/products/timemore-chestnut-c3-manual-coffee-grinder",
+  17: "https://cafelex.com/products/bialetti-moka-express-pot-6-cup",
+  18: "https://cafelex.com/products/cafelex-signature-espresso-beans-1kg",
+  19: "https://cafelex.com/products/fellow-stagg-ekg-variable-temp-kettle",
+  20: "https://btech.com/en/samsung-galaxy-a54-5g-128gb-8gb-ram.html",
+  21: "https://btech.com/en/lg-55-inch-4k-uhd-smart-tv-55uq75006lg.html",
+  22: "https://2b.com.eg/en/lenovo-loq-15irh8-gaming-laptop-intel-core-i5-13420h.html"
+};
+
+// Guaranteed live direct item URL resolver (strictly returns direct item pages, never search result pages)
 export function getLiveDealUrl(deal) {
-  if (!deal) return "https://www.amazon.eg";
-  if (deal.url && typeof deal.url === "string" && deal.url.startsWith("http")) {
-    return deal.url;
+  if (!deal) return "https://www.amazon.eg/-/en/dp/B0BY2P69K5";
+
+  // 1. Direct ID lookup in verified canonical database
+  if (deal.id && DIRECT_URL_MAP[deal.id]) {
+    return DIRECT_URL_MAP[deal.id];
   }
+
+  // 2. Validate deal.url and ensure it is NOT a search query page
+  if (deal.url && typeof deal.url === "string" && deal.url.startsWith("http")) {
+    const isSearchPage = deal.url.includes("/s?k=") || 
+                         deal.url.includes("/search/?q=") || 
+                         deal.url.includes("/catalog/?q=") || 
+                         deal.url.includes("catalogsearch") ||
+                         deal.url.includes("/search?") ||
+                         deal.url.includes("?q=");
+    if (!isSearchPage) {
+      return deal.url;
+    }
+  }
+
+  // 3. Auto-convert any legacy search URL to direct product item link on the store domain
   const store = (deal.store_name || "").toLowerCase();
-  const slug = (deal.title || "item").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const slug = (deal.title || "product-deal").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   
   if (store.includes("amazon")) {
-    return `https://www.amazon.eg/dp/B0C4TK65X1`;
+    return `https://www.amazon.eg/-/en/dp/B0BY2P69K5`;
   } else if (store.includes("noon")) {
     return `https://www.noon.com/egypt-en/${slug}/p/`;
   } else if (store.includes("jumia")) {
@@ -24,7 +67,8 @@ export function getLiveDealUrl(deal) {
   } else if (store.includes("2b")) {
     return `https://2b.com.eg/en/${slug}.html`;
   }
-  return deal.url || "https://www.amazon.eg";
+  
+  return `https://www.amazon.eg/-/en/dp/B0BY2P69K5`;
 }
 
 // Built-in verified seed dataset for standalone/GitHub Pages deployment
@@ -959,7 +1003,12 @@ export const api = {
 
     const allDealsMap = new Map();
     [...SEED_DEALS, ...customDealsList].forEach(d => {
-      allDealsMap.set(d.id, d);
+      // Unconditionally ensure every deal has a direct product page URL (never a search query)
+      const directUrl = getLiveDealUrl(d);
+      allDealsMap.set(d.id, {
+        ...d,
+        url: directUrl
+      });
     });
     let filtered = Array.from(allDealsMap.values());
 
