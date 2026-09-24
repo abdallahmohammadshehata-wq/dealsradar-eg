@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, TrendingDown, AlertTriangle, CheckCircle2, ShieldCheck, Calendar, ExternalLink } from "lucide-react";
-import { api } from "../api/client";
+import { api, getLiveDealUrl } from "../api/client";
 
 export function PriceHistoryModal({ deal, onClose }) {
   const [history, setHistory] = useState([]);
@@ -215,12 +215,12 @@ export function PriceHistoryModal({ deal, onClose }) {
             إغلاق
           </button>
           <a
-            href={deal.url}
+            href={getLiveDealUrl(deal)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20"
           >
-            <span>شراء العرض الآن</span>
+            <span>شراء العرض الآن من {deal.store_name?.replace(" EG", "") || "المتجر"}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>

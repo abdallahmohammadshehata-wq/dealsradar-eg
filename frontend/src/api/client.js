@@ -2,6 +2,29 @@
 
 const API_BASE = "/api/v1";
 
+// Guaranteed live URL resolver to prevent 404 dead links
+export function getLiveDealUrl(deal) {
+  if (!deal) return "https://www.amazon.eg";
+  if (deal.url && !deal.url.includes("/dp/B0") && !deal.url.includes("undefined")) {
+    return deal.url;
+  }
+  const store = (deal.store_name || "").toLowerCase();
+  const query = encodeURIComponent((deal.title || "").replace(/[^a-zA-Z0-9\s-]/g, " ").trim());
+
+  if (store.includes("amazon")) {
+    return `https://www.amazon.eg/s?k=${query}`;
+  } else if (store.includes("noon")) {
+    return `https://www.noon.com/egypt-en/search/?q=${query}`;
+  } else if (store.includes("jumia")) {
+    return `https://www.jumia.com.eg/catalog/?q=${query}`;
+  } else if (store.includes("b.tech") || store.includes("btech")) {
+    return `https://btech.com/en/catalogsearch/result/?q=${query}`;
+  } else if (store.includes("2b")) {
+    return `https://2b.com.eg/en/catalogsearch/result/?q=${query}`;
+  }
+  return deal.url || `https://www.amazon.eg/s?k=${query}`;
+}
+
 // Built-in verified seed dataset for standalone/GitHub Pages deployment
 const SEED_STORES = [
   {
@@ -73,7 +96,7 @@ const SEED_DEALS = [
     title_ar: "تلفزيون سامسونج 55 بوصة بدقة 4K سمارت ريسيفر مدمج - UA55CU7000",
     store_id: 1,
     store_name: "Amazon EG",
-    url: "https://www.amazon.eg/-/en/Samsung-55-Inch-UHD-Smart/dp/B0C4TK65X1",
+    url: "https://www.amazon.eg/s?k=Samsung+55+Inch+4K+UHD+Smart+TV+UA55CU7000",
     image_url: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=600&q=80",
     current_price: 14999.00,
     original_price: 24500.00,
@@ -93,7 +116,7 @@ const SEED_DEALS = [
     title_ar: "ابل ايفون 15 (128 جيجابايت) - اسود مع الجزيرة التفاعلية",
     store_id: 1,
     store_name: "Amazon EG",
-    url: "https://www.amazon.eg/-/en/Apple-iPhone-15-128-GB/dp/B0CHX1W1XY",
+    url: "https://www.amazon.eg/s?k=Apple+iPhone+15+128GB+Black",
     image_url: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=600&q=80",
     current_price: 38999.00,
     original_price: 46500.00,
@@ -113,7 +136,7 @@ const SEED_DEALS = [
     title_ar: "قلاية هوائية رقمية بلاك اند ديكر 4 لتر 1500 واط - AF400",
     store_id: 1,
     store_name: "Amazon EG",
-    url: "https://www.amazon.eg/-/en/Black-Decker-Digital-Air-Fryer/dp/B08HRY9QLL",
+    url: "https://www.amazon.eg/s?k=Black+Decker+Digital+Air+Fryer+4L+AF400",
     image_url: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
     current_price: 3199.00,
     original_price: 5890.00,
@@ -133,7 +156,7 @@ const SEED_DEALS = [
     title_ar: "شاومي ريدمي نوت 13 (8 جيجابايت رام، 256 جيجابايت تخزين) - أسود",
     store_id: 2,
     store_name: "Noon EG",
-    url: "https://www.noon.com/egypt-en/redmi-note-13-dual-sim-midnight-black-8gb-ram-256gb-4g/N70034458V/p/",
+    url: "https://www.noon.com/egypt-en/search/?q=Redmi+Note+13+Xiaomi",
     image_url: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80",
     current_price: 8499.00,
     original_price: 12999.00,
@@ -153,7 +176,7 @@ const SEED_DEALS = [
     title_ar: "ماكينة صنع القهوة التركية تورنيدو 330 واط 4 فناجين - اسود",
     store_id: 2,
     store_name: "Noon EG",
-    url: "https://www.noon.com/egypt-en/turkish-coffee-maker-330w-tcme-100-b-black/N29381666A/p/",
+    url: "https://www.noon.com/egypt-en/search/?q=Tornado+Turkish+Coffee+Maker+TCME",
     image_url: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
     current_price: 1799.00,
     original_price: 2999.00,
@@ -173,7 +196,7 @@ const SEED_DEALS = [
     title_ar: "حذاء جري دورامو اس ال للرجال من اديداس - اسود/ابيض",
     store_id: 2,
     store_name: "Noon EG",
-    url: "https://www.noon.com/egypt-en/duramo-sl-running-shoes-core-black/N39487711A/p/",
+    url: "https://www.noon.com/egypt-en/search/?q=Adidas+Duramo+SL+Running+Shoes",
     image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
     current_price: 2199.00,
     original_price: 4500.00,
@@ -193,7 +216,7 @@ const SEED_DEALS = [
     title_ar: "عطر ديور سوفاج او دي بارفان للرجال - 100 مل",
     store_id: 2,
     store_name: "Noon EG",
-    url: "https://www.noon.com/egypt-en/sauvage-edp-100ml/N14867905A/p/",
+    url: "https://www.noon.com/egypt-en/search/?q=Dior+Sauvage+Eau+De+Parfum",
     image_url: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80",
     current_price: 6499.00,
     original_price: 9800.00,
@@ -213,7 +236,7 @@ const SEED_DEALS = [
     title_ar: "سماعات سوني اللاسلكية فوق الأذن مانعة للضوضاء WH-1000XM5",
     store_id: 1,
     store_name: "Amazon EG",
-    url: "https://www.amazon.eg/-/en/Sony-WH-1000XM5-Wireless-Canceling-Headphones/dp/B09XS7JWHH",
+    url: "https://www.amazon.eg/s?k=Sony+WH-1000XM5+Wireless+Headphones",
     image_url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
     current_price: 17499.00,
     original_price: 26900.00,
@@ -233,7 +256,7 @@ const SEED_DEALS = [
     title_ar: "بنطلون جينز شينو رجالي قطن سليم فيت من ديفاكتو - كحلي",
     store_id: 3,
     store_name: "Jumia EG",
-    url: "https://www.jumia.com.eg/defacto-men-slim-fit-chino-pants-navy-35689120.html",
+    url: "https://www.jumia.com.eg/catalog/?q=Defacto+Men+Slim+Fit+Chino",
     image_url: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=600&q=80",
     current_price: 549.00,
     original_price: 1199.00,
@@ -253,7 +276,7 @@ const SEED_DEALS = [
     title_ar: "سماعات ايربودز انكر ساوندكور لايف P2i لاسلكية بتقنية الذكاء الاصطناعي للمكالمات",
     store_id: 3,
     store_name: "Jumia EG",
-    url: "https://www.jumia.com.eg/anker-soundcore-life-p2i-earbuds-black-29847192.html",
+    url: "https://www.jumia.com.eg/catalog/?q=Anker+Soundcore+Life+P2i",
     image_url: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=80",
     current_price: 1099.00,
     original_price: 1850.00,
@@ -273,7 +296,7 @@ const SEED_DEALS = [
     title_ar: "ماكينة صنع القهوة الاسبريسو ديلونجي ديديكا مانيوال ستانلس ستيل EC685",
     store_id: 2,
     store_name: "Noon EG",
-    url: "https://www.noon.com/egypt-en/dedica-deluxe-espresso-maker/N21287900A/p/",
+    url: "https://www.noon.com/egypt-en/search/?q=DeLonghi+Dedica+Espresso+EC685",
     image_url: "https://images.unsplash.com/photo-1534040385558-8686259f972b?auto=format&fit=crop&w=600&q=80",
     current_price: 8999.00,
     original_price: 15400.00,
@@ -293,7 +316,7 @@ const SEED_DEALS = [
     title_ar: "جهاز إزالة الشعر بالنبض الضوئي براون سيلك اكسبيرت برو 5",
     store_id: 1,
     store_name: "Amazon EG",
-    url: "https://www.amazon.eg/-/en/Braun-Silk-expert-Removal-System-PL5124/dp/B07N9D7D62",
+    url: "https://www.amazon.eg/s?k=Braun+Silk-expert+Pro+5+IPL",
     image_url: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80",
     current_price: 16499.00,
     original_price: 28500.00,
@@ -313,7 +336,7 @@ const SEED_DEALS = [
     title_ar: "مسحوق غسيل اريال اتوماتيك بلمسة داوني 9 كجم",
     store_id: 1,
     store_name: "Amazon EG",
-    url: "https://www.amazon.eg/-/en/Ariel-Automatic-Laundry-Detergent-Downy/dp/B084Z7L8KM",
+    url: "https://www.amazon.eg/s?k=Ariel+Automatic+Laundry+Detergent+9Kg",
     image_url: "https://images.unsplash.com/photo-1585670270608-b404fb0971f4?auto=format&fit=crop&w=600&q=80",
     current_price: 489.00,
     original_price: 750.00,
@@ -333,7 +356,7 @@ const SEED_DEALS = [
     title_ar: "زيت عباد الشمس كريستال نقي زجاجة 1.6 لتر",
     store_id: 3,
     store_name: "Jumia EG",
-    url: "https://www.jumia.com.eg/crystal-sunflower-oil-1.6l-92817264.html",
+    url: "https://www.jumia.com.eg/catalog/?q=Crystal+Sunflower+Oil+1.6L",
     image_url: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80",
     current_price: 124.00,
     original_price: 175.00,

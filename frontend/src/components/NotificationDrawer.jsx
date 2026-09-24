@@ -12,7 +12,7 @@ import {
   AlertCircle,
   Zap
 } from "lucide-react";
-import { api } from "../api/client";
+import { api, getLiveDealUrl } from "../api/client";
 
 export function NotificationDrawer({ isOpen, onClose, deviceId, onNotificationCountChange }) {
   const [notifications, setNotifications] = useState([]);
@@ -262,13 +262,13 @@ export function NotificationDrawer({ isOpen, onClose, deviceId, onNotificationCo
                     {(notif.price || 0).toLocaleString()} ج.م
                   </span>
                   <a
-                    href={notif.url || "#"}
+                    href={getLiveDealUrl(notif)}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
                     className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 font-bold"
                   >
-                    <span>فتح الصفقة</span>
+                    <span>فتح الصفقة في {notif.store_name?.replace(" EG", "") || "المتجر"}</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>

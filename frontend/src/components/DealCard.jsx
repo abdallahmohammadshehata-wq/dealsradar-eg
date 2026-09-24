@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ExternalLink, LineChart, Bell, BellRing, Share2, Star, Sparkles, Zap, EyeOff } from "lucide-react";
+import { getLiveDealUrl } from "../api/client";
 
 export function DealCard({
   deal,
@@ -193,7 +194,7 @@ export function DealCard({
 
           {/* Deep Link to Retailer */}
           <a
-            href={deal.url}
+            href={getLiveDealUrl(deal)}
             target="_blank"
             rel="noopener noreferrer"
             className="col-span-3 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs transition-all shadow-md shadow-amber-500/10 active:scale-95"
