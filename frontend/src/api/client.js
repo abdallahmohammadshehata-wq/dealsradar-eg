@@ -529,10 +529,13 @@ export const api = {
       const res = await fetch(`${API_BASE}/stores`);
       if (res.ok) return await res.json();
     } catch (e) {}
-    return SEED_STORES;
+
+    const custom = localStorage.getItem("dealsradar_custom_stores");
+    const customList = custom ? JSON.parse(custom) : [];
+    return [...SEED_STORES, ...customList];
   },
 
-  async validateStore(url, selectors) {
+  async validateStore(url, selectors = {}) {
     try {
       const res = await fetch(`${API_BASE}/stores/validate`, {
         method: "POST",
@@ -541,26 +544,34 @@ export const api = {
       });
       if (res.ok) return await res.json();
     } catch (e) {}
-    // Simulated validation preview for static mode
+
+    // Simulated auto-discovery validation preview for static mode
+    let cleanUrl = (url || "").trim();
+    if (!cleanUrl.startsWith("http")) cleanUrl = "https://" + cleanUrl;
+    let domain = "custom-store.eg";
+    try {
+      domain = new URL(cleanUrl).hostname.replace("www.", "");
+    } catch (e) {}
+
     return {
       success: true,
       status_code: 200,
-      message: `تم التحقق بنجاح من بنية ومحددات موقع ${url}!`,
+      message: `تم التعرف والتحقق بنجاح من متجر ${domain}! الرادار جاهز لرصد الأسعار فوراً.`,
       items_extracted_count: 4,
       sample_items: [
         {
-          title: "Smart UHD LED Screen 50 Inch Ultra HDR",
+          title: `Smart UHD LED Screen 55 Inch Ultra HDR - ${domain}`,
           current_price: 11499.0,
           original_price: 18500.0,
           discount_percent: 37.8,
-          product_url: url
+          product_url: cleanUrl
         },
         {
-          title: "Automatic Touch Air Fryer 5.5L 1800W",
+          title: `Automatic Touch Air Fryer 5.5L 1800W - ${domain}`,
           current_price: 2899.0,
           original_price: 4900.0,
           discount_percent: 40.8,
-          product_url: url
+          product_url: cleanUrl
         }
       ]
     };
@@ -575,15 +586,35 @@ export const api = {
       });
       if (res.ok) return await res.json();
     } catch (e) {}
+
+    let cleanUrl = (storeData.url || storeData.base_url || "").trim();
+    if (!cleanUrl.startsWith("http")) cleanUrl = "https://" + cleanUrl;
+    let domain = storeData.domain || "custom-store.eg";
+    try {
+      domain = new URL(cleanUrl).hostname.replace("www.", "");
+    } catch (e) {}
+
     const newStore = {
       id: Date.now(),
-      ...storeData,
-      slug: storeData.name.toLowerCase().replace(/\s+/g, "-"),
+      name: storeData.name,
+      slug: storeData.name.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-"),
+      domain: domain,
+      base_url: cleanUrl,
+      logo_url: storeData.logo_url || `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
       is_active: true,
       is_custom: true,
-      deals_count: 2,
+      deals_count: 3,
       last_crawled_at: new Date().toISOString()
     };
+
+    // Save in local storage
+    try {
+      const saved = localStorage.getItem("dealsradar_custom_stores");
+      const list = saved ? JSON.parse(saved) : [];
+      const updated = [...list.filter(s => s.name !== newStore.name), newStore];
+      localStorage.setItem("dealsradar_custom_stores", JSON.stringify(updated));
+    } catch (e) {}
+
     return newStore;
   },
 

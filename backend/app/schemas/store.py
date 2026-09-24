@@ -3,22 +3,23 @@ from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, HttpUrl, Field
 
 class CustomSelectorConfig(BaseModel):
-    listing_url: str = Field(..., description="Target deals or clearance page URL")
-    item_container_selector: str = Field(..., description="CSS selector for the product card container")
-    title_selector: str = Field(..., description="CSS selector for product title")
-    current_price_selector: str = Field(..., description="CSS selector for deal price")
-    original_price_selector: Optional[str] = Field(None, description="CSS selector for original/strikethrough price")
-    image_selector: Optional[str] = Field(None, description="CSS selector for product thumbnail")
-    discount_badge_selector: Optional[str] = Field(None, description="CSS selector for discount badge text")
-    link_selector: Optional[str] = Field(None, description="CSS selector for product URL / anchor")
-    category: Optional[str] = Field("Custom Store", description="Default product category")
+    listing_url: Optional[str] = Field(None, description="Target deals or clearance page URL")
+    item_container_selector: Optional[str] = Field(".product-card, .product-item, .item, .card, [data-product]", description="CSS selector for the product card container")
+    title_selector: Optional[str] = Field(".product-title, .title, .product-name, h2, h3, a", description="CSS selector for product title")
+    current_price_selector: Optional[str] = Field(".price, .price-now, .special-price, .current-price, .amount", description="CSS selector for deal price")
+    original_price_selector: Optional[str] = Field(".old-price, .price-was, .regular-price, del, s", description="CSS selector for original price")
+    image_selector: Optional[str] = Field("img", description="CSS selector for product thumbnail")
+    discount_badge_selector: Optional[str] = Field(".badge-discount, .discount, .percentage", description="CSS selector for discount badge text")
+    link_selector: Optional[str] = Field("a", description="CSS selector for product URL / anchor")
+    category: Optional[str] = Field("General", description="Default product category")
 
 class StoreCreate(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
-    domain: str = Field(..., min_length=3, max_length=255)
-    base_url: str = Field(..., min_length=5, max_length=500)
+    url: Optional[str] = Field(None, description="Website URL")
+    domain: Optional[str] = Field(None, max_length=255)
+    base_url: Optional[str] = Field(None, max_length=500)
     logo_url: Optional[str] = None
-    custom_config: CustomSelectorConfig
+    custom_config: Optional[CustomSelectorConfig] = None
 
 class StoreResponse(BaseModel):
     id: int

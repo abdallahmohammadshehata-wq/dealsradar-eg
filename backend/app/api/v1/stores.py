@@ -47,12 +47,37 @@ async def validate_custom_website_selectors(payload: StoreValidateRequest):
 @router.post("", response_model=StoreResponse, status_code=status.HTTP_201_CREATED)
 async def register_new_store(payload: StoreCreate, db: AsyncSession = Depends(get_db)):
     """
-    Dynamically registers a new custom e-commerce store with custom selector configurations.
+    Dynamically registers a new custom e-commerce store with only website name and link.
     Automatically initiates the first crawl.
     """
+    raw_url = (payload.url or payload.base_url or "").strip()
+    if not raw_url.startswith("http://") and not raw_url.startswith("https://"):
+        raw_url = "https://" + raw_url
+
+    # Auto-extract domain & base_url
+    match = re.search(r"https?://([^/]+)", raw_url)
+    derived_domain = match.group(1).lower() if match else (payload.domain or "custom-store.eg")
+    derived_base_url = f"https://{derived_domain}"
+
+    # Auto logo favicon
+    logo_url = payload.logo_url or f"https://www.google.com/s2/favicons?domain={derived_domain}&sz=128"
+
+    # Default custom scraper config
+    config_dict = payload.custom_config.dict() if payload.custom_config else {
+        "listing_url": raw_url,
+        "item_container_selector": ".product-card, .product-item, .item, .card, [data-product]",
+        "title_selector": ".product-title, .title, .product-name, h2, h3, a",
+        "current_price_selector": ".price, .price-now, .special-price, .current-price, .amount",
+        "original_price_selector": ".old-price, .price-was, .regular-price, del, s",
+        "image_selector": "img",
+        "discount_badge_selector": ".badge-discount, .discount, .percentage",
+        "link_selector": "a",
+        "category": "General"
+    }
+
     # Slugify name
     slug = re.sub(r"[^\w\s-]", "", payload.name.lower())
-    slug = re.sub(r"[\s_-]+", "-", slug).strip("-")
+    slug = re.sub(r"[\s_-]+", "-", slug).strip("-") or f"store-{derived_domain.replace('.', '-')}"
 
     # Check for duplicate
     stmt = select(Store).where((Store.slug == slug) | (Store.name == payload.name))
@@ -66,12 +91,12 @@ async def register_new_store(payload: StoreCreate, db: AsyncSession = Depends(ge
     new_store = Store(
         name=payload.name,
         slug=slug,
-        domain=payload.domain,
-        base_url=payload.base_url,
-        logo_url=payload.logo_url,
+        domain=payload.domain or derived_domain,
+        base_url=payload.base_url or derived_base_url,
+        logo_url=logo_url,
         is_active=True,
         is_custom=True,
-        custom_config=payload.custom_config.dict(),
+        custom_config=config_dict,
         deals_count=0
     )
     db.add(new_store)
