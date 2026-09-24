@@ -110,10 +110,12 @@ export function App() {
     } catch (e) {}
   }, [watchedDeals]);
 
-  // Load stores and market stats on initial mount
+  // Load stores, stats, and auto-refresh deals on initial mount
   useEffect(() => {
     loadMetadata();
     loadNotificationCount();
+    // Auto-refresh deals on every app open (simulates live data sync)
+    loadDeals(true);
   }, [deviceId]);
 
   const loadMetadata = async () => {
@@ -519,27 +521,32 @@ export function App() {
         isOpen={isAddSiteOpen}
         onClose={() => setIsAddSiteOpen(false)}
         onStoreCreated={(newStore) => {
+          // Reload metadata to pick up the new store
           loadMetadata();
-          if (newStore && newStore.name) {
-            setFilters(prev => ({
-              ...prev,
-              stores: [newStore.name],
-              category: "All",
-              categories: [],
-              search: "",
-              page: 1
-            }));
-            setActiveTab("feed");
-            try {
-              confetti({
-                particleCount: 50,
-                spread: 70,
-                origin: { y: 0.7 },
-                colors: ["#f59e0b", "#10b981", "#3b82f6"]
-              });
-            } catch (e) {}
-          }
-          loadDeals(true);
+          
+          // Reset to show all deals (including the new store's deals)
+          setFilters(prev => ({
+            ...prev,
+            stores: [],
+            category: "All",
+            categories: [],
+            search: "",
+            page: 1
+          }));
+          setActiveTab("feed");
+          
+          // Trigger confetti celebration
+          try {
+            confetti({
+              particleCount: 50,
+              spread: 70,
+              origin: { y: 0.7 },
+              colors: ["#f59e0b", "#10b981", "#3b82f6"]
+            });
+          } catch (e) {}
+          
+          // Force reload deals after a brief delay to let state settle
+          setTimeout(() => loadDeals(true), 100);
         }}
       />
 
