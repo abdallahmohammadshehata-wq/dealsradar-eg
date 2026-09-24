@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local database and cache
+*.db
+*.sqlite
+*.sqlite3
+dealsradar.db
+
+# Environment variables
+.env
+.env.local
+
+# Build artifacts
+frontend/node_modules/
+.DS_Store
+Thumbs.db
+*.log

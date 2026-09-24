@@ -1,0 +1,56 @@
+{
+  "name": "DealsRadar EG - صائد الصفقات",
+  "short_name": "DealsRadar EG",
+  "description": "Automated deals & price drops tracker across Amazon Egypt, Noon, Jumia, and custom retail stores.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "orientation": "portrait-primary",
+  "dir": "auto",
+  "lang": "ar-EG",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "🔥 Top Deals",
+      "short_name": "Deals",
+      "description": "View biggest discounts today",
+      "url": "/?view=feed",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "🎙️ Voice Search",
+      "short_name": "Voice",
+      "description": "Search deals by speaking in Arabic or English",
+      "url": "/?view=voice",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "🔔 Alert Rules",
+      "short_name": "Alerts",
+      "description": "Manage background push triggers",
+      "url": "/?view=alerts",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["shopping", "productivity", "finance"],
+  "screenshots": []
+}
