@@ -40,6 +40,7 @@ export function AddSiteModal({ isOpen, onClose, onStoreCreated }) {
   if (!isOpen) return null;
 
   const quickStores = [
+    { name: "كافيلاكس مصر (Cafelax)", url: "https://www.cafelax.com", cat: "Coffee & Beverages" },
     { name: "راية شوب (RayaShop)", url: "https://www.rayashop.com/en/deals", cat: "Electronics" },
     { name: "تريد لاين (Tradeline EG)", url: "https://tradeline.net/offers", cat: "Electronics" },
     { name: "دريم 2000 (Dream2000)", url: "https://dream2000.com/offers", cat: "Electronics" },

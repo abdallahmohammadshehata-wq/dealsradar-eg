@@ -7,6 +7,8 @@ export function Navbar({
   onOpenVoice,
   onOpenImage,
   onOpenAddSite,
+  onRadarSweep,
+  isSweeping = false,
   theme,
   onToggleTheme,
   stats
@@ -76,10 +78,21 @@ export function Navbar({
             <span className="hidden sm:inline">بالصورة</span>
           </button>
 
+          {/* Dynamic Radar Sweep Button */}
+          <button
+            onClick={onRadarSweep}
+            disabled={isSweeping}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all shadow-sm active:scale-95 disabled:opacity-50"
+            title="تشغيل الرادار للبحث الدوري عن أحدث الصفقات والأسعار"
+          >
+            <Radar className={`w-4 h-4 text-amber-400 ${isSweeping ? "animate-spin text-amber-300" : ""}`} />
+            <span className="hidden sm:inline">{isSweeping ? "جاري المسح..." : "مسح الرادار"}</span>
+          </button>
+
           {/* Add Custom Website Store */}
           <button
             onClick={onOpenAddSite}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold transition-all active:scale-95"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-amber-500/30 text-xs font-semibold transition-all active:scale-95"
           >
             <PlusCircle className="w-4 h-4 text-amber-400" />
             <span>إضافة متجر</span>

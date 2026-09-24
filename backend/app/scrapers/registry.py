@@ -9,7 +9,7 @@ from app.models.price_history import PriceHistory
 from app.scrapers.amazon_eg import AmazonEgScraper
 from app.scrapers.noon_eg import NoonEgScraper
 from app.scrapers.jumia_eg import JumiaEgScraper
-from app.scrapers.custom_scraper import CustomStoreScraper
+from app.scrapers.dynamic_radar import UniversalDynamicRadar
 from app.core.security import hash_url
 
 logger = logging.getLogger("scrapers.registry")
@@ -23,27 +23,30 @@ class ScraperRegistry:
         }
 
     async def crawl_store(self, store: Store, db: AsyncSession) -> List[Deal]:
-        """Runs the appropriate scraper for a single store and updates the DB."""
+        """
+        Runs autonomous dynamic extraction for any store and updates the DB.
+        If a built-in scraper exists for huge multi-category marketplaces, it is used.
+        Otherwise, the UniversalDynamicRadar autonomously adapts to the store.
+        """
         deals_data: List[Dict[str, Any]] = []
         
         if not store.is_active:
             return []
 
         try:
-            if store.is_custom and store.custom_config:
-                custom_scraper = CustomStoreScraper(
-                    store_name=store.name,
-                    domain=store.domain,
-                    config=store.custom_config
-                )
-                deals_data = await custom_scraper.scrape_deals()
-            elif store.slug in self.builtin_scrapers:
+            if store.slug in self.builtin_scrapers:
                 deals_data = await self.builtin_scrapers[store.slug].scrape_deals()
             else:
-                logger.warning(f"No scraper implementation found for store slug: {store.slug}")
-                return []
+                # Universal autonomous dynamic radar adapts to ANY website automatically
+                radar = UniversalDynamicRadar(
+                    store_name=store.name,
+                    domain=store.domain,
+                    base_url=store.base_url or f"https://{store.domain}",
+                    config=store.custom_config or {}
+                )
+                deals_data = await radar.scrape_deals()
         except Exception as e:
-            logger.error(f"Error scraping store {store.name}: {str(e)}")
+            logger.error(f"Error dynamically scraping store {store.name}: {str(e)}")
             return []
 
         saved_deals = []

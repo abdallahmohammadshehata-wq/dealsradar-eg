@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Globe, PlusCircle, RefreshCw, CheckCircle2, ExternalLink, ShieldCheck, Clock, Loader2 } from "lucide-react";
 import { api } from "../api/client";
 
-export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores }) {
+export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores, onRadarSweep, isSweeping = false }) {
   const [crawlingId, setCrawlingId] = useState(null);
   const [crawlMsg, setCrawlMsg] = useState({});
 
@@ -13,7 +13,7 @@ export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores }) {
       const res = await api.crawlStore(storeId);
       setCrawlMsg((prev) => ({
         ...prev,
-        [storeId]: `تم بنجاح! تم استخراج وتحديث ${res.deals_crawled_count} صفقة.`
+        [storeId]: `تم بنجاح! تم استخراج وتحديث ${res.deals_crawled_count} صفقة حقيقية.`
       }));
       if (onRefreshStores) onRefreshStores();
     } catch (err) {
@@ -33,17 +33,28 @@ export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores }) {
             المتاجر المستهدفة وشبكة الزحف (Scraping Network)
           </h2>
           <p className="text-slate-400 text-xs max-w-xl">
-            يقوم الرادار بمراقبة المتاجر الكبرى في مصر (أمازون، نون، جوميا، بي تك، 2B) تلقائياً، مع إمكانية إضافة أي متجر تجزئة جديد عبر محددات مخصصة.
+            يقوم الرادار بمراقبة المتاجر الكبرى في مصر (أمازون، كافيلاكس Cafelax، 2B مصر، نون، جوميا، بي تك) دورياً، مع إمكانية إضافة أي متجر جديد والتقاط عروضه تلقائياً.
           </p>
         </div>
 
-        <button
-          onClick={onOpenAddSite}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 active:scale-95 shrink-0"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>إضافة متجر جديد (+ Add Website)</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={onRadarSweep}
+            disabled={isSweeping}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-amber-500/40 text-amber-300 font-bold text-xs shadow-md active:scale-95 disabled:opacity-50 transition-all"
+          >
+            <RefreshCw className={`w-4 h-4 text-amber-400 ${isSweeping ? "animate-spin" : ""}`} />
+            <span>{isSweeping ? "جاري مسح الرادار..." : "مسح الشبكة بالكامل"}</span>
+          </button>
+
+          <button
+            onClick={onOpenAddSite}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 active:scale-95 shrink-0"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>إضافة متجر جديد</span>
+          </button>
+        </div>
       </div>
 
       {/* Stores Grid */}

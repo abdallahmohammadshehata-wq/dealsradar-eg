@@ -46,40 +46,34 @@ INITIAL_STORES = [
         "name": "B.TECH Egypt",
         "slug": "btech-eg",
         "domain": "btech.com",
-        "base_url": "https://btech.com/en",
+        "base_url": "https://btech.com/ar",
         "logo_url": "https://btech.com/static/version1726058925/frontend/Btech/default/en_US/images/logo.svg",
         "is_active": True,
         "is_custom": True,
-        "custom_config": {
-            "listing_url": "https://btech.com/en/deals.html",
-            "item_container_selector": ".product-item",
-            "title_selector": ".product-item-link",
-            "current_price_selector": ".special-price .price",
-            "original_price_selector": ".old-price .price",
-            "image_selector": ".product-image-photo",
-            "discount_badge_selector": ".discount-tag",
-            "link_selector": "a.product-item-link",
-            "category": "Electronics"
-        }
+        "custom_config": None
     },
     {
         "name": "2B Egypt",
         "slug": "2b-eg",
         "domain": "2b.com.eg",
-        "base_url": "https://2b.com.eg",
+        "base_url": "https://2b.com.eg/en/computers/laptops.html",
         "logo_url": "https://2b.com.eg/media/logo/stores/1/2B_logo_1.png",
         "is_active": True,
         "is_custom": True,
+        "custom_config": None
+    },
+    {
+        "name": "Cafelax",
+        "slug": "cafelax-eg",
+        "domain": "cafelax.com",
+        "base_url": "https://www.cafelax.com",
+        "logo_url": "https://www.google.com/s2/favicons?domain=cafelax.com&sz=128",
+        "is_active": True,
+        "is_custom": False,
         "custom_config": {
-            "listing_url": "https://2b.com.eg/en/computers/laptops.html",
-            "item_container_selector": "li.product-item, div.product-item-info",
-            "title_selector": "a.product-item-link",
-            "current_price_selector": "[data-price-type='finalPrice'] .price, .price-final_price .price, span.price",
-            "original_price_selector": "[data-price-type='oldPrice'] .price, .old-price .price",
-            "image_selector": "img.product-image-photo",
-            "discount_badge_selector": None,
-            "link_selector": "a.product-item-link",
-            "category": "Electronics"
+            "platform": "shopify",
+            "listing_url": "https://www.cafelax.com",
+            "category": "Coffee & Beverages"
         }
     }
 ]

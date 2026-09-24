@@ -36,12 +36,29 @@ async def validate_custom_website_selectors(payload: StoreValidateRequest):
             detail="Forbidden or invalid website URL."
         )
 
+    cfg = payload.selectors.dict() if payload.selectors else {}
+    if not cfg.get("listing_url"):
+        cfg["listing_url"] = payload.url
+
     scraper = CustomStoreScraper(
         store_name="Validation Probe",
         domain=payload.url,
-        config=payload.selectors.dict()
+        config=cfg
     )
     result = await scraper.validate_and_test()
+    # Normalize sample items to ensure product_url is set
+    samples = []
+    for item in result.get("sample_items", []):
+        samples.append({
+            "title": item["title"],
+            "current_price": item["current_price"],
+            "original_price": item.get("original_price"),
+            "discount_percent": item["discount_percent"],
+            "image_url": item.get("image_url"),
+            "product_url": item.get("url") or item.get("product_url") or payload.url,
+            "url": item.get("url") or item.get("product_url") or payload.url
+        })
+    result["sample_items"] = samples
     return StoreValidateResponse(**result)
 
 @router.post("", response_model=StoreResponse, status_code=status.HTTP_201_CREATED)

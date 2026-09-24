@@ -77,11 +77,24 @@ export function App() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isSweeping, setIsSweeping] = useState(false);
   const [error, setError] = useState(null);
 
   // Metadata & Stores State
   const [marketStats, setMarketStats] = useState(null);
   const [stores, setStores] = useState([]);
+
+  const handleRadarSweep = async () => {
+    setIsSweeping(true);
+    try {
+      await api.triggerRadarSweep();
+      await Promise.all([loadDeals(true), loadMetadata()]);
+    } catch (e) {
+      console.warn("Radar sweep warning:", e);
+    } finally {
+      setIsSweeping(false);
+    }
+  };
   const [availableCategories, setAvailableCategories] = useState([
     "All", "Electronics", "Home & Kitchen", "Fashion", "Beauty & Personal Care", "Supermarket"
   ]);
@@ -242,6 +255,8 @@ export function App() {
         onOpenVoice={() => setIsVoiceOpen(true)}
         onOpenImage={() => setIsImageOpen(true)}
         onOpenAddSite={() => setIsAddSiteOpen(true)}
+        onRadarSweep={handleRadarSweep}
+        isSweeping={isSweeping}
         theme={theme}
         onToggleTheme={handleToggleTheme}
         stats={marketStats}
@@ -470,6 +485,8 @@ export function App() {
             stores={stores}
             onOpenAddSite={() => setIsAddSiteOpen(true)}
             onRefreshStores={loadMetadata}
+            onRadarSweep={handleRadarSweep}
+            isSweeping={isSweeping}
           />
         )}
 

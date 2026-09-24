@@ -1,6 +1,6 @@
 import math
 from typing import List, Optional
-from fastapi import APIRouter, Depends, Query, HTTPException, Request
+from fastapi import APIRouter, Depends, Query, HTTPException, Request, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, desc, asc, or_, and_
 from sqlalchemy.orm import selectinload
@@ -194,3 +194,27 @@ async def get_deal_price_history(deal_id: int, db: AsyncSession = Depends(get_db
     res = await db.execute(stmt)
     history = res.scalars().all()
     return history
+
+@router.post("/radar-sweep")
+async def trigger_radar_sweep(background_tasks: BackgroundTasks):
+    """Triggers an immediate asynchronous radar sweep across all active native and custom stores."""
+    from app.db.session import AsyncSessionLocal
+    from app.scrapers.registry import scraper_registry
+    from app.services.alert_evaluator import alert_evaluator
+
+    async def run_sweep_job():
+        try:
+            async with AsyncSessionLocal() as session:
+                all_deals = await scraper_registry.crawl_all_active_stores(session)
+                if all_deals:
+                    await alert_evaluator.evaluate_deals(all_deals, session)
+        except Exception as e:
+            logger.error(f"Error in background radar sweep job: {e}")
+
+    background_tasks.add_task(run_sweep_job)
+    return {
+        "success": True,
+        "message": "تم إطلاق مسح الرادار بنجاح وتحديث كافة العروض الحقيقية في الخلفية."
+    }
+
+

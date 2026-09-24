@@ -40,7 +40,7 @@ class StoreResponse(BaseModel):
 
 class StoreValidateRequest(BaseModel):
     url: str
-    selectors: CustomSelectorConfig
+    selectors: Optional[CustomSelectorConfig] = None
 
 class ExtractedSampleItem(BaseModel):
     title: str
@@ -48,11 +48,12 @@ class ExtractedSampleItem(BaseModel):
     original_price: Optional[float] = None
     discount_percent: float
     image_url: Optional[str] = None
-    product_url: str
+    product_url: Optional[str] = None
+    url: Optional[str] = None
 
 class StoreValidateResponse(BaseModel):
     success: bool
     status_code: int
     message: str
     items_extracted_count: int
-    sample_items: List[ExtractedSampleItem]
+    sample_items: List[ExtractedSampleItem] = []
