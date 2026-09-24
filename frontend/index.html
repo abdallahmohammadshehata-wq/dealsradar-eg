@@ -23,12 +23,13 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      // Register PWA Service Worker
+      // Register PWA Service Worker safely with relative base
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
+          const swUrl = './sw.js';
+          navigator.serviceWorker.register(swUrl)
             .then(reg => console.log('DealsRadar EG ServiceWorker registered:', reg.scope))
-            .catch(err => console.log('ServiceWorker registration error:', err));
+            .catch(err => console.log('ServiceWorker registration error (ignored in dev):', err));
         });
       }
     </script>
