@@ -5,8 +5,11 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB.svg)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-8.3-646CFF.svg)](https://vite.dev)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-success?style=for-the-badge&logo=github)](https://abdallahmohammadshehata-wq.github.io/dealsradar-eg/)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25%20Offline-5A0FC8.svg)](https://web.dev/progressive-web-apps/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+🌐 **Live Public PWA Demo**: **[https://abdallahmohammadshehata-wq.github.io/dealsradar-eg/](https://abdallahmohammadshehata-wq.github.io/dealsradar-eg/)**
 
 **DealsRadar EG (صائد الصفقات)** is a high-performance Progressive Web App (PWA) and autonomous scraping engine built for tracking, analyzing, and alerting on real-time price drops across the Egyptian e-commerce market (**Amazon.eg**, **Noon.com/egypt**, **Jumia.com.eg**, **B.TECH**, **2B**, and user-registered custom stores).
 
