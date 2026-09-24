@@ -71,21 +71,21 @@ INITIAL_STORES = [
         "is_active": True,
         "is_custom": True,
         "custom_config": {
-            "listing_url": "https://2b.com.eg/en/hot-deals.html",
-            "item_container_selector": ".product-item-info",
-            "title_selector": ".product-item-name a",
-            "current_price_selector": ".special-price .price",
-            "original_price_selector": ".old-price .price",
-            "image_selector": ".product-image-photo",
-            "discount_badge_selector": ".hot-deal-label",
-            "link_selector": "a.product-item-photo",
+            "listing_url": "https://2b.com.eg/en/computers/laptops.html",
+            "item_container_selector": "li.product-item, div.product-item-info",
+            "title_selector": "a.product-item-link",
+            "current_price_selector": "[data-price-type='finalPrice'] .price, .price-final_price .price, span.price",
+            "original_price_selector": "[data-price-type='oldPrice'] .price, .old-price .price",
+            "image_selector": "img.product-image-photo",
+            "discount_badge_selector": None,
+            "link_selector": "a.product-item-link",
             "category": "Electronics"
         }
     }
 ]
 
 async def init_db():
-    """Initializes schema and seeds baseline stores and deals."""
+    """Initializes schema and seeds baseline stores and verified real deals."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -116,8 +116,39 @@ async def init_db():
         deals_count = len(res_deals.scalars().all())
 
         if deals_count == 0:
-            logger.info("Seeding initial deals catalog across Amazon, Noon, and Jumia...")
-            await scraper_registry.crawl_all_active_stores(db)
+            logger.info("Seeding verified real deals from verified_deals.json...")
+            import json
+            from pathlib import Path
+            from app.core.security import hash_url
+            data_file = Path(__file__).parent.parent / "scrapers" / "data" / "verified_deals.json"
+            if data_file.exists():
+                with open(data_file, "r", encoding="utf-8") as f:
+                    verified_items = json.load(f)
+                    for item in verified_items:
+                        deal = Deal(
+                            title=item["title"],
+                            title_ar=item.get("title_ar"),
+                            store_id=item.get("store_id", 1),
+                            store_name=item["store_name"],
+                            url=item["url"],
+                            canonical_url_hash=hash_url(item["url"]),
+                            image_url=item.get("image_url"),
+                            current_price=item["current_price"],
+                            original_price=item["original_price"],
+                            discount_percent=item["discount_percent"],
+                            currency=item.get("currency", "EGP"),
+                            category=item["category"],
+                            brand=item.get("brand", item["store_name"]),
+                            rating=item.get("rating", 4.5),
+                            reviews_count=item.get("reviews_count", 100),
+                            is_flash_sale=item.get("is_flash_sale", False),
+                            is_all_time_low=item.get("is_all_time_low", False),
+                            is_available=True,
+                            created_at=datetime.datetime.utcnow(),
+                            updated_at=datetime.datetime.utcnow()
+                        )
+                        db.add(deal)
+                await db.commit()
 
         # Seed sample Alert Rules for demonstration
         stmt_rules = select(AlertRule)
