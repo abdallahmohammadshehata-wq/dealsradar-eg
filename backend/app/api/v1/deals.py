@@ -22,7 +22,8 @@ async def get_deals_feed(
     min_price: Optional[float] = Query(None, ge=0.0, description="Minimum price in EGP"),
     max_price: Optional[float] = Query(None, ge=0.0, description="Maximum price in EGP"),
     stores: Optional[str] = Query(None, description="Comma-separated store names"),
-    category: Optional[str] = Query(None, description="Category filter"),
+    category: Optional[str] = Query(None, description="Single category filter"),
+    categories: Optional[str] = Query(None, description="Comma-separated category list"),
     brand: Optional[str] = Query(None, description="Brand filter"),
     search: Optional[str] = Query(None, description="Bilingual search query in English or Arabic"),
     is_all_time_low: Optional[bool] = Query(None, description="Filter for historical lowest price deals"),
@@ -58,9 +59,21 @@ async def get_deals_feed(
         if store_list:
             query = query.where(Deal.store_name.in_(store_list))
 
-    # 4. Category filter
-    if category and category.lower() != "all":
-        query = query.where(func.lower(Deal.category) == category.lower())
+    # 4. Multi-Category and Special Category filter
+    target_cats = []
+    if categories:
+        target_cats.extend([c.strip() for c in categories.split(",") if c.strip() and c.lower() != "all"])
+    elif category and category.lower() != "all":
+        target_cats.extend([c.strip() for c in category.split(",") if c.strip() and c.lower() != "all"])
+
+    if target_cats:
+        cat_conditions = []
+        for cat in target_cats:
+            cat_conditions.append(func.lower(Deal.category) == cat.lower())
+            # Also allow keyword matching for special custom categories (e.g. Gaming, Laptops)
+            cat_conditions.append(func.lower(Deal.title).like(f"%{cat.lower()}%"))
+            cat_conditions.append(func.lower(Deal.title_ar).like(f"%{cat.lower()}%"))
+        query = query.where(or_(*cat_conditions))
 
     # 5. Brand filter
     if brand:

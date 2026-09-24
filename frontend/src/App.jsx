@@ -62,6 +62,7 @@ export function App() {
     min_price: null,
     max_price: null,
     stores: [],
+    categories: [],
     category: "All",
     brand: null,
     search: "",
@@ -168,6 +169,7 @@ export function App() {
       min_price: null,
       max_price: null,
       stores: [],
+      categories: [],
       category: "All",
       brand: null,
       search: "",
@@ -300,8 +302,8 @@ export function App() {
           <div className="space-y-5 animate-fadeIn">
             
             {/* Feed Header / Status Info */}
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5 text-slate-400">
                 <span className="font-bold text-slate-200">
                   تم العثور على <b className="text-amber-400 font-['Outfit']">{totalDeals}</b> صفقة
                 </span>
@@ -310,11 +312,35 @@ export function App() {
                     خصم ≥ {filters.min_discount}%
                   </span>
                 )}
-                {filters.category !== "All" && (
+                {/* Active Multi-Categories */}
+                {Array.isArray(filters.categories) && filters.categories.length > 0 ? (
+                  filters.categories.map((cat) => (
+                    <span
+                      key={cat}
+                      className="px-2 py-0.5 rounded-md bg-purple-950/80 border border-purple-600/40 text-purple-200 font-medium flex items-center gap-1"
+                    >
+                      <span>{cat}</span>
+                      <button
+                        onClick={() => {
+                          const next = filters.categories.filter(c => c !== cat);
+                          setFilters({
+                            ...filters,
+                            categories: next,
+                            category: next.length === 1 ? next[0] : (next.length === 0 ? "All" : next.join(",")),
+                            page: 1
+                          });
+                        }}
+                        className="hover:text-white"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))
+                ) : (filters.category && filters.category !== "All") ? (
                   <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">
                     {filters.category}
                   </span>
-                )}
+                ) : null}
               </div>
 
               {/* Mobile Refresh Button */}

@@ -359,7 +359,18 @@ export const api = {
     if (params.min_price) query.append("min_price", params.min_price);
     if (params.max_price) query.append("max_price", params.max_price);
     if (params.stores) query.append("stores", Array.isArray(params.stores) ? params.stores.join(",") : params.stores);
-    if (params.category && params.category !== "All") query.append("category", params.category);
+    
+    // Categories multi-filter param
+    const categoriesList = Array.isArray(params.categories) 
+      ? params.categories 
+      : (params.category && params.category !== "All" ? params.category.split(",") : []);
+    
+    if (categoriesList.length > 0) {
+      query.append("categories", categoriesList.join(","));
+    } else if (params.category && params.category !== "All") {
+      query.append("category", params.category);
+    }
+
     if (params.brand) query.append("brand", params.brand);
     if (params.search) query.append("search", params.search);
     if (params.is_all_time_low) query.append("is_all_time_low", "true");
@@ -393,9 +404,25 @@ export const api = {
         filtered = filtered.filter(d => storeList.includes(d.store_name));
       }
     }
-    if (params.category && params.category !== "All") {
-      filtered = filtered.filter(d => d.category.toLowerCase() === params.category.toLowerCase());
+
+    // Multi-Category & Special Category Filter (OR logic across selected categories)
+    if (categoriesList.length > 0) {
+      filtered = filtered.filter(d => {
+        return categoriesList.some(cat => {
+          const cLow = cat.toLowerCase().trim();
+          if (cLow === "all") return true;
+          
+          // Exact or partial category match
+          if (d.category && d.category.toLowerCase() === cLow) return true;
+          
+          // Custom / Special Category keyword match in title, brand, or category
+          const fullText = `${d.title} ${d.title_ar || ""} ${d.brand || ""} ${d.category}`.toLowerCase();
+          const tokens = cLow.split(/[\/\s,]+/).filter(t => t.length > 1);
+          return tokens.some(token => fullText.includes(token));
+        });
+      });
     }
+
     if (params.brand) {
       filtered = filtered.filter(d => d.brand && d.brand.toLowerCase().includes(params.brand.toLowerCase()));
     }
@@ -641,6 +668,28 @@ export const api = {
       });
       if (res.ok) return await res.json();
     } catch (e) {}
+
+    // Standalone / LocalStorage storage
+    const newNotif = {
+      id: Date.now(),
+      device_id: deviceId,
+      deal_id: 1,
+      title: title || "🔥 DealsRadar EG Alert | تخفيض حارق!",
+      body: body || "تم رصد تخفيض قوي على منتج ضمن اهتماماتك!",
+      url: "https://www.amazon.eg",
+      discount_percent: 45.0,
+      price: 14999.0,
+      store_name: "Amazon EG",
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+
+    const current = await this.getNotifications(deviceId);
+    const updated = [newNotif, ...current].slice(0, 50);
+    try {
+      localStorage.setItem(`dealsradar_notifications_${deviceId}`, JSON.stringify(updated));
+    } catch (e) {}
+
     return {
       success: true,
       message: "تم حفظ الإشعار في مركز التنبيهات الداخلي للتطبيق."
@@ -652,7 +701,15 @@ export const api = {
       const res = await fetch(`${API_BASE}/alerts/notifications?device_id=${encodeURIComponent(deviceId)}`);
       if (res.ok) return await res.json();
     } catch (e) {}
-    return [
+
+    const saved = localStorage.getItem(`dealsradar_notifications_${deviceId}`);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+
+    const defaultNotifs = [
       {
         id: 1,
         device_id: deviceId,
@@ -680,11 +737,28 @@ export const api = {
         created_at: new Date(Date.now() - 3600000).toISOString()
       }
     ];
+
+    try {
+      localStorage.setItem(`dealsradar_notifications_${deviceId}`, JSON.stringify(defaultNotifs));
+    } catch (e) {}
+    return defaultNotifs;
   },
 
   async markNotificationRead(id) {
     try {
       await fetch(`${API_BASE}/alerts/notifications/${id}/read`, { method: "POST" });
+    } catch (e) {}
+
+    // Update in all local keys
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("dealsradar_notifications_")) {
+          const list = JSON.parse(localStorage.getItem(key) || "[]");
+          const updated = list.map(n => n.id === id ? { ...n, is_read: true } : n);
+          localStorage.setItem(key, JSON.stringify(updated));
+        }
+      }
     } catch (e) {}
     return { success: true };
   },
@@ -692,6 +766,34 @@ export const api = {
   async markAllNotificationsRead(deviceId = "default-device") {
     try {
       await fetch(`${API_BASE}/alerts/notifications/mark-all-read?device_id=${encodeURIComponent(deviceId)}`, { method: "POST" });
+    } catch (e) {}
+
+    try {
+      const saved = localStorage.getItem(`dealsradar_notifications_${deviceId}`);
+      if (saved) {
+        const list = JSON.parse(saved);
+        const updated = list.map(n => ({ ...n, is_read: true }));
+        localStorage.setItem(`dealsradar_notifications_${deviceId}`, JSON.stringify(updated));
+      }
+    } catch (e) {}
+    return { success: true };
+  },
+
+  async deleteNotification(id, deviceId = "default-device") {
+    try {
+      const saved = localStorage.getItem(`dealsradar_notifications_${deviceId}`);
+      if (saved) {
+        const list = JSON.parse(saved);
+        const updated = list.filter(n => n.id !== id);
+        localStorage.setItem(`dealsradar_notifications_${deviceId}`, JSON.stringify(updated));
+      }
+    } catch (e) {}
+    return { success: true };
+  },
+
+  async clearAllNotifications(deviceId = "default-device") {
+    try {
+      localStorage.setItem(`dealsradar_notifications_${deviceId}`, JSON.stringify([]));
     } catch (e) {}
     return { success: true };
   },
