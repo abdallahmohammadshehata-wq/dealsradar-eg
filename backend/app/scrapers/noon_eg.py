@@ -77,13 +77,14 @@ class NoonEgScraper(BaseScraper):
                 logger.warning(f"Error parsing Noon EG HTML: {str(e)}. Using verified seed deals.")
 
         if not results:
-            results = self.get_seed_deals()
+            results = []
 
         logger.info(f"Noon EG scraper returned {len(results)} deals.")
         return results
 
     def get_seed_deals(self) -> List[Dict[str, Any]]:
-        """Verified live active deals on Noon Egypt."""
+        """No fake deals permitted."""
+        return []
         return [
             {
                 "title": "Xiaomi Redmi Note 13 4G (8GB RAM, 256GB Storage) - Midnight Black",

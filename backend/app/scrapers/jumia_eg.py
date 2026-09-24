@@ -82,13 +82,14 @@ class JumiaEgScraper(BaseScraper):
                 logger.warning(f"Error parsing Jumia EG HTML: {str(e)}. Using verified seed deals.")
 
         if not results:
-            results = self.get_seed_deals()
+            results = []
 
         logger.info(f"Jumia EG scraper returned {len(results)} deals.")
         return results
 
     def get_seed_deals(self) -> List[Dict[str, Any]]:
-        """Verified live active deals on Jumia Egypt."""
+        """No fake deals permitted."""
+        return []
         return [
             {
                 "title": "Defacto Men's Slim Fit Cotton Chino Trousers - Navy Blue",

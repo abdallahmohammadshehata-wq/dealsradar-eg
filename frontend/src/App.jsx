@@ -388,19 +388,27 @@ export function App() {
               </div>
             ) : visibleDeals.length === 0 ? (
               <div className="text-center py-16 bg-slate-900/40 rounded-3xl border border-slate-800/80 p-6 space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center mx-auto text-slate-600">
+                <div className="w-14 h-14 rounded-2xl bg-slate-950 flex items-center justify-center mx-auto text-amber-500/80 border border-amber-500/20">
                   <ShoppingBag className="w-7 h-7" />
                 </div>
-                <h3 className="text-slate-200 font-bold text-sm">لم يتم العثور على صفقات تطابق هذه الفلاتر</h3>
-                <p className="text-slate-400 text-xs max-w-sm mx-auto">
-                  حاول خفض نسبة الخصم المطلوبة أو توسيع نطاق الأسعار أو البحث بكلمات أخرى.
+                <h3 className="text-slate-200 font-bold text-sm">
+                  {filters.stores && filters.stores.length === 1 
+                    ? `لا توجد عروض متوفرة حالياً في متجر ${filters.stores[0]}`
+                    : "لم يتم العثور على صفقات تطابق هذه الفلاتر"}
+                </h3>
+                <p className="text-slate-400 text-xs max-w-md mx-auto leading-relaxed">
+                  {filters.stores && filters.stores.length === 1 
+                    ? "الرادار يعتمد فقط على العروض الحقيقية وروابط المنتجات الفعلية المؤكدة بنسبة 100%، ولا يدرج أي بيانات وهمية. سيتم إظهار العروض فور رصدها."
+                    : "حاول خفض نسبة الخصم المطلوبة أو إزالة تحديد المتاجر أو البحث بكلمات أخرى."}
                 </p>
-                <button
-                  onClick={handleResetFilters}
-                  className="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20"
-                >
-                  إعادة ضبط الفلاتر
-                </button>
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <button
+                    onClick={handleResetFilters}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs shadow-md shadow-amber-500/20 hover:opacity-90 transition-all"
+                  >
+                    عرض جميع الصفقات المتاحة
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
