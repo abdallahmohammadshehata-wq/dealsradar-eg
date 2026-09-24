@@ -514,8 +514,27 @@ export function App() {
       <AddSiteModal
         isOpen={isAddSiteOpen}
         onClose={() => setIsAddSiteOpen(false)}
-        onStoreCreated={() => {
+        onStoreCreated={(newStore) => {
           loadMetadata();
+          if (newStore && newStore.name) {
+            setFilters(prev => ({
+              ...prev,
+              stores: [newStore.name],
+              category: "All",
+              categories: [],
+              search: "",
+              page: 1
+            }));
+            setActiveTab("feed");
+            try {
+              confetti({
+                particleCount: 50,
+                spread: 70,
+                origin: { y: 0.7 },
+                colors: ["#f59e0b", "#10b981", "#3b82f6"]
+              });
+            } catch (e) {}
+          }
           loadDeals(true);
         }}
       />
