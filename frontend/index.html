@@ -17,19 +17,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <title>DealsRadar EG | صائد الصفقات مصر</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      // Register PWA Service Worker safely with relative base
+      // Register PWA Service Worker safely with cache-busted URL & auto-reload on update
       if ('serviceWorker' in navigator) {
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+
         window.addEventListener('load', () => {
-          const swUrl = './sw.js';
+          const swUrl = './sw.js?v=' + Date.now();
           navigator.serviceWorker.register(swUrl)
-            .then(reg => console.log('DealsRadar EG ServiceWorker registered:', reg.scope))
-            .catch(err => console.log('ServiceWorker registration error (ignored in dev):', err));
+            .then(reg => {
+              console.log('DealsRadar EG ServiceWorker registered:', reg.scope);
+              reg.update();
+            })
+            .catch(err => console.log('ServiceWorker registration error:', err));
         });
       }
     </script>

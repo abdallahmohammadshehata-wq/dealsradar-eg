@@ -1,4 +1,4 @@
-const CACHE_NAME = "dealsradar-eg-v1.1.0";
+const CACHE_NAME = "dealsradar-eg-v2.0.0-mobile-viewport-fix";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -10,8 +10,9 @@ const ASSETS_TO_CACHE = [
   "./icons/badge-72.png"
 ];
 
-// Install Event: pre-cache static app shell
+// Install Event: pre-cache static app shell and skip waiting immediately
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
@@ -19,23 +20,22 @@ self.addEventListener("install", (event) => {
       });
     })
   );
-  self.skipWaiting();
 });
 
-// Activate Event: clean old caches
+// Activate Event: immediately clean ALL old caches and claim clients
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log("Purging old cache:", key);
             return caches.delete(key);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 // Fetch Event: network-first for API, cache-first for static assets
