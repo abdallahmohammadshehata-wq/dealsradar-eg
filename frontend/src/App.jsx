@@ -317,11 +317,11 @@ export function App() {
       )}
 
       {/* 4. Main Body Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-5 pb-24 sm:pb-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-4 py-3 sm:py-5 pb-24 sm:pb-12 overflow-x-hidden min-w-0">
         
         {/* VIEW: Deals Feed */}
         {activeTab === "feed" && (
-          <div className="space-y-5 animate-fadeIn">
+          <div className="space-y-4 sm:space-y-5 animate-fadeIn min-w-0">
             
             {/* Feed Header / Status Info */}
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -392,7 +392,7 @@ export function App() {
 
             {/* Loading Skeletons */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+              <div className="grid grid-cols-1 min-[520px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5 w-full min-w-0">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="h-80 bg-slate-900/60 rounded-2xl border border-slate-800/80 animate-pulse p-4 space-y-3">
                     <div className="w-full aspect-[4/3] bg-slate-950/80 rounded-xl" />
@@ -427,7 +427,7 @@ export function App() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+              <div className="grid grid-cols-1 min-[520px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5 w-full min-w-0">
                 {visibleDeals.map((deal) => (
                   <DealCard
                     key={deal.id}

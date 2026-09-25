@@ -143,21 +143,21 @@ export function DualFilterBar({
   const standardCategories = ["All", ...availableCategories.filter(c => c !== "All")];
 
   return (
-    <div className="w-full bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 sticky top-[61px] z-30 transition-all shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-2.5">
+    <div className="w-full max-w-full bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 sticky top-[53px] sm:top-[61px] z-30 transition-all shadow-md overflow-hidden">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-4 py-2 sm:py-2.5 min-w-0">
         
         {/* Top Quick Bar: Search Input, Quick Category Pills & Expand Button */}
-        <div className="flex flex-col sm:flex-row items-center gap-2.5">
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-2.5 min-w-0">
           
           {/* Bilingual Search Box */}
-          <div className="relative flex-1 w-full">
+          <div className="relative flex-1 w-full min-w-0">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               value={filters.search || ""}
               onChange={(e) => onChange({ ...filters, search: e.target.value, page: 1 })}
               placeholder="ابحث عن منتج، ماركة، أو فئة (مثال: سامسونج، قلاية هوائية، ايفون)..."
-              className="w-full pl-9 pr-9 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all"
+              className="w-full pl-9 pr-9 py-1.5 sm:py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all"
             />
             {filters.search && (
               <button
@@ -170,15 +170,15 @@ export function DualFilterBar({
           </div>
 
           {/* Quick Action Pills: Sort Dropdown & Toggle Filters drawer */}
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-between sm:justify-start min-w-0">
             
             {/* Sort Selector */}
-            <div className="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300">
-              <ArrowDownUp className="w-3.5 h-3.5 text-amber-400" />
+            <div className="flex items-center gap-1 bg-slate-950/80 border border-slate-800 rounded-xl px-2 py-1.5 text-xs text-slate-300 min-w-0 flex-1 sm:flex-none">
+              <ArrowDownUp className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <select
                 value={filters.sort_by || "discount_desc"}
                 onChange={(e) => onChange({ ...filters, sort_by: e.target.value, page: 1 })}
-                className="bg-transparent text-slate-200 text-xs focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent text-slate-200 text-xs focus:outline-none cursor-pointer pr-1 w-full truncate"
               >
                 <option value="discount_desc" className="bg-slate-900">أعلى نسبة خصم (Biggest Drop)</option>
                 <option value="price_asc" className="bg-slate-900">السعر: من الأقل للأعلى</option>
@@ -191,14 +191,14 @@ export function DualFilterBar({
             {/* Expand / Filter Controls Toggle */}
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all active:scale-95 ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-all active:scale-95 shrink-0 ${
                 isExpanded || hasActiveFilters
                   ? "bg-amber-500/10 border-amber-500/40 text-amber-400"
                   : "bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700"
               }`}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>الفلاتر المتقدمة</span>
+              <span className="hidden min-[350px]:inline">فلاتر</span>
               {hasActiveFilters && (
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
               )}
@@ -207,7 +207,7 @@ export function DualFilterBar({
         </div>
 
         {/* Multi-Category Selection Bar & Special Category Adder */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 mt-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1.5 mt-1 w-full max-w-full">
           
           {/* "All" Category Pill */}
           <button
