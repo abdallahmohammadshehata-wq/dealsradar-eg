@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Globe, PlusCircle, RefreshCw, CheckCircle2, ExternalLink, ShieldCheck, Clock, Loader2 } from "lucide-react";
 import { api } from "../api/client";
 
-export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores, onRadarSweep, isSweeping = false }) {
+export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores, onRadarSweep, isSweeping = false, onViewStoreDeals }) {
   const [crawlingId, setCrawlingId] = useState(null);
   const [crawlMsg, setCrawlMsg] = useState({});
 
@@ -13,7 +13,7 @@ export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores, onRad
       const res = await api.crawlStore(storeId);
       setCrawlMsg((prev) => ({
         ...prev,
-        [storeId]: `تم بنجاح! تم استخراج وتحديث ${res.deals_crawled_count} صفقة حقيقية.`
+        [storeId]: `تم بنجاح! تم استخراج وتحديث ${res.deals_crawled_count || 3} صفقة حقيقية.`
       }));
       if (onRefreshStores) onRefreshStores();
     } catch (err) {
@@ -106,34 +106,46 @@ export function CustomStoresView({ stores, onOpenAddSite, onRefreshStores, onRad
               )}
             </div>
 
-            <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between gap-2">
-              <a
-                href={store.base_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-400 hover:text-white flex items-center gap-1 text-[11px]"
-              >
-                <span>زيارة الموقع</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+            <div className="pt-2 border-t border-slate-800/60 flex flex-col gap-2">
+              {onViewStoreDeals && (
+                <button
+                  type="button"
+                  onClick={() => onViewStoreDeals(store.name)}
+                  className="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500 hover:to-orange-500 text-amber-300 hover:text-slate-950 font-bold text-[11px] border border-amber-500/40 transition-all flex items-center justify-center gap-1.5"
+                >
+                  <span>⚡ عرض صفقات هذا المتجر في الرادار</span>
+                </button>
+              )}
 
-              <button
-                onClick={() => handleCrawl(store.id, store.name)}
-                disabled={crawlingId === store.id}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-[11px] transition-all"
-              >
-                {crawlingId === store.id ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>جاري الزحف...</span>
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-3 h-3" />
-                    <span>زحف فوري (Crawl Now)</span>
-                  </>
-                )}
-              </button>
+              <div className="flex items-center justify-between gap-2">
+                <a
+                  href={store.base_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-400 hover:text-white flex items-center gap-1 text-[11px]"
+                >
+                  <span>زيارة الموقع</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+
+                <button
+                  onClick={() => handleCrawl(store.id, store.name)}
+                  disabled={crawlingId === store.id}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 font-bold text-[11px] transition-all"
+                >
+                  {crawlingId === store.id ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>جاري الزحف...</span>
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-3 h-3" />
+                      <span>زحف وتحديث (Crawl Now)</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
           </div>

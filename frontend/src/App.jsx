@@ -488,6 +488,24 @@ export function App() {
             onRefreshStores={loadMetadata}
             onRadarSweep={handleRadarSweep}
             isSweeping={isSweeping}
+            onViewStoreDeals={(storeName) => {
+              setFilters({
+                page: 1,
+                page_size: 20,
+                min_discount: null,
+                min_price: null,
+                max_price: null,
+                stores: [storeName],
+                categories: [],
+                category: "All",
+                brand: null,
+                search: "",
+                is_all_time_low: false,
+                is_flash_sale: false,
+                sort_by: "discount_desc"
+              });
+              setActiveTab("feed");
+            }}
           />
         )}
 
@@ -550,15 +568,22 @@ export function App() {
           // Reload metadata to pick up the new store
           loadMetadata();
           
-          // Reset to show all deals (including the new store's deals)
-          setFilters(prev => ({
-            ...prev,
-            stores: [],
-            category: "All",
+          // Completely reset all restrictive filter constraints so new store's deals immediately show up!
+          setFilters({
+            page: 1,
+            page_size: 20,
+            min_discount: null,
+            min_price: null,
+            max_price: null,
+            stores: newStore.name ? [newStore.name] : [],
             categories: [],
+            category: "All",
+            brand: null,
             search: "",
-            page: 1
-          }));
+            is_all_time_low: false,
+            is_flash_sale: false,
+            sort_by: "discount_desc"
+          });
           setActiveTab("feed");
           
           // Trigger confetti celebration
@@ -572,7 +597,7 @@ export function App() {
           } catch (e) {}
           
           // Force reload deals after a brief delay to let state settle
-          setTimeout(() => loadDeals(true), 100);
+          setTimeout(() => loadDeals(true), 150);
         }}
       />
 
