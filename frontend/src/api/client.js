@@ -2917,6 +2917,71 @@ export const api = {
     return initial;
   },
 
+  async sendTestPush(deviceId = "default-device", title = "🔥 DealsRadar EG Alert | تخفيض حارق!", body = "تم رصد تخفيض 45% على شاشة سامسونج 55 بوصة بسعر 14,999 ج.م!") {
+    // 1. Try Backend API first
+    try {
+      const res = await fetch(`${API_BASE}/alerts/test-push`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_id: deviceId, title, body, url: window.location.href })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data;
+      }
+    } catch (e) {}
+
+    // 2. Client-side Local Notification Generator (Persists to In-App Drawer)
+    const newNotif = {
+      id: `notif-${Date.now()}`,
+      title: title,
+      body: body,
+      deal_id: 1,
+      url: window.location.href,
+      discount_percent: 45.0,
+      current_price: 14999.0,
+      store_name: "Amazon EG",
+      created_at: new Date().toISOString(),
+      is_read: false
+    };
+
+    try {
+      const saved = localStorage.getItem(`dealsradar_notifs_${deviceId}`);
+      const list = saved ? JSON.parse(saved) : [];
+      const updated = [newNotif, ...list];
+      localStorage.setItem(`dealsradar_notifs_${deviceId}`, JSON.stringify(updated));
+    } catch (e) {}
+
+    // 3. Trigger Browser / OS Notification directly if permission granted
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+          const reg = await navigator.serviceWorker.ready;
+          if (reg && reg.showNotification) {
+            reg.showNotification(title, {
+              body: body,
+              icon: "./icons/icon-192.png",
+              badge: "./icons/badge-72.png",
+              vibrate: [200, 100, 200],
+              data: { url: window.location.href }
+            });
+          } else {
+            new Notification(title, { body: body, icon: "./icons/icon-192.png" });
+          }
+        } else {
+          new Notification(title, { body: body, icon: "./icons/icon-192.png" });
+        }
+      } catch (err) {
+        console.warn("Direct browser notification trigger error:", err);
+      }
+    }
+
+    return {
+      success: true,
+      message: "🚀 تم إرسال الإشعار التجريبي وإضافته لمركز التنبيهات بنجاح!"
+    };
+  },
+
   async markNotificationRead(notifId, deviceId = "default-device") {
     try {
       const res = await fetch(`${API_BASE}/alerts/notifications/${notifId}/read`, { method: "PATCH" });
@@ -2929,6 +2994,40 @@ export const api = {
       const updated = list.map(n => n.id === notifId ? { ...n, is_read: true } : n);
       localStorage.setItem(`dealsradar_notifs_${deviceId}`, JSON.stringify(updated));
     }
+    return { success: true };
+  },
+
+  async markAllNotificationsRead(deviceId = "default-device") {
+    try {
+      const res = await fetch(`${API_BASE}/alerts/notifications/mark-all-read?device_id=${encodeURIComponent(deviceId)}`, { method: "POST" });
+      if (res.ok) return await res.json();
+    } catch (e) {}
+
+    const saved = localStorage.getItem(`dealsradar_notifs_${deviceId}`);
+    if (saved) {
+      const list = JSON.parse(saved);
+      const updated = list.map(n => ({ ...n, is_read: true }));
+      localStorage.setItem(`dealsradar_notifs_${deviceId}`, JSON.stringify(updated));
+    }
+    return { success: true };
+  },
+
+  async deleteNotification(notifId, deviceId = "default-device") {
+    try {
+      const saved = localStorage.getItem(`dealsradar_notifs_${deviceId}`);
+      if (saved) {
+        const list = JSON.parse(saved);
+        const filtered = list.filter(n => n.id !== notifId);
+        localStorage.setItem(`dealsradar_notifs_${deviceId}`, JSON.stringify(filtered));
+      }
+    } catch (e) {}
+    return { success: true };
+  },
+
+  async clearAllNotifications(deviceId = "default-device") {
+    try {
+      localStorage.setItem(`dealsradar_notifs_${deviceId}`, JSON.stringify([]));
+    } catch (e) {}
     return { success: true };
   }
 };
