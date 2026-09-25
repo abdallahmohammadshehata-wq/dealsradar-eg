@@ -206,4 +206,49 @@ class MultimodalParserService:
             "confidence": 0.94
         }
 
+    async def parse_with_gemini_nlp(self, transcript: str) -> Dict[str, Any]:
+        """Enhanced voice query parsing powered by Google Gemini AI with heuristic fallback."""
+        from app.core.config import settings
+        import httpx
+        import json
+
+        base_extracted = self.parse_voice_query(transcript)
+        if not settings.GEMINI_API_KEY:
+            return base_extracted
+
+        try:
+            prompt = f"""You are an Arabic & Egyptian Dialect NLP engine for an Egyptian deals aggregator.
+Parse this voice search into structured JSON:
+User Spoken Query: "{transcript}"
+
+Respond with ONLY valid JSON with keys:
+- query: string (cleaned search keyword)
+- category: string or null (one of: 'Electronics', 'Home & Kitchen', 'Fashion', 'Beauty & Personal Care', 'Supermarket')
+- brand: string or null (e.g. 'Samsung', 'Apple', 'Xiaomi', 'Adidas')
+- min_discount: number or null (e.g. 30 for 30%)
+- max_price: number or null (in EGP)
+- min_price: number or null (in EGP)
+- stores: list of strings (e.g. ['Amazon EG', 'Noon EG', 'Jumia EG'])
+"""
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.GEMINI_API_KEY}",
+                    json={
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"}
+                    }
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        raw_txt = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+                        parsed = json.loads(raw_txt)
+                        if isinstance(parsed, dict) and parsed.get("query"):
+                            return {**base_extracted, **parsed}
+        except Exception as e:
+            logger.debug(f"Gemini voice NLP skipped: {e}")
+
+        return base_extracted
+
 multimodal_service = MultimodalParserService()

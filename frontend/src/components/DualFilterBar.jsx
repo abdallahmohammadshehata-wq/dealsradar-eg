@@ -18,6 +18,7 @@ export function DualFilterBar({
   filters,
   onChange,
   onReset,
+  onOpenAddSite,
   availableStores = ["Amazon EG", "Noon EG", "Jumia EG", "B.TECH Egypt", "2B Egypt"],
   availableCategories = ["All", "Electronics", "Home & Kitchen", "Fashion", "Beauty & Personal Care", "Supermarket"]
 }) {
@@ -454,6 +455,16 @@ export function DualFilterBar({
                     </button>
                   );
                 })}
+
+                {onOpenAddSite && (
+                  <button
+                    onClick={onOpenAddSite}
+                    className="px-2.5 py-1 rounded-md text-[11px] font-bold border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition-all flex items-center gap-1 active:scale-95"
+                  >
+                    <Plus className="w-3 h-3 text-amber-400" />
+                    <span>+ متجر جديد</span>
+                  </button>
+                )}
               </div>
             </div>
 

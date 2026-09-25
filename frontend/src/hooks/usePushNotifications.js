@@ -95,6 +95,21 @@ export function usePushNotifications(deviceId) {
               keys: { p256dh, auth }
             });
           }
+
+          // Register 30-minute Periodic Background Sync if supported by browser
+          if ("periodicSync" in reg) {
+            try {
+              const status = await navigator.permissions.query({ name: "periodic-background-sync" });
+              if (status.state === "granted") {
+                await reg.periodicSync.register("dealsradar-periodic-sweep", {
+                  minInterval: 30 * 60 * 1000 // 30 minutes
+                });
+                console.log("30-minute Periodic Background Sync registered successfully.");
+              }
+            } catch (pErr) {
+              console.debug("Periodic sync permission status:", pErr);
+            }
+          }
         } catch (pushErr) {
           console.warn("WebPush backend sync optional warning:", pushErr);
         }

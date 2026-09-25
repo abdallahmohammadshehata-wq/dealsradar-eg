@@ -63,7 +63,7 @@ async def health_check():
     }
 
 # Static file serving for PWA (if frontend/dist or static folder exists)
-frontend_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../frontend/dist"))
+frontend_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../frontend/dist"))
 if not os.path.exists(frontend_dist_path):
     frontend_dist_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../dist"))
 

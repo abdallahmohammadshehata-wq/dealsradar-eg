@@ -310,6 +310,7 @@ export function App() {
           filters={filters}
           onChange={setFilters}
           onReset={handleResetFilters}
+          onOpenAddSite={() => setIsAddSiteOpen(true)}
           availableStores={stores.map(s => s.name)}
           availableCategories={availableCategories}
         />

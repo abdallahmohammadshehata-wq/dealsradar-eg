@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./dealsradar.db")
     
+    # Gemini AI API Key (loaded from .env or environment variable)
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    
     # Web Push / VAPID Keys
     # Default development keys (can be overridden by environment variables)
     VAPID_PUBLIC_KEY: str = os.getenv(
@@ -29,7 +32,7 @@ class Settings(BaseSettings):
         "Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Mobile/15E148 Safari/604.1",
         "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36"
     ]
-    CRAWL_INTERVAL_MINUTES: int = int(os.getenv("CRAWL_INTERVAL_MINUTES", "15"))
+    CRAWL_INTERVAL_MINUTES: int = int(os.getenv("CRAWL_INTERVAL_MINUTES", "30"))
     AUTO_SEED_ON_STARTUP: bool = True
     
     # Rate Limiting
